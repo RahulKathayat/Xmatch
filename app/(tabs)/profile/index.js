@@ -1,10 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { Redirect } from 'expo-router'
+import { Feather } from "@expo/vector-icons";
 
 const index = () => {
   return (
-    <Redirect href = "/(tabs)/profile"/>
+    <View>
+      <Text>Profile Screen</Text>
+      <Feather name="eye" size={24} color="black" />
+    </View>
   )
 }
 
