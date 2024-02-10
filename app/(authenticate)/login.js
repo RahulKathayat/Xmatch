@@ -7,20 +7,20 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Pressable,
-  TouchableOpacity
+  TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 const login = () => {
-  const router=useRouter();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
-      >
+    >
       <View style={{ width: "100%", height: 200, backgroundColor: "pink" }}>
         <View
           style={{
@@ -30,7 +30,12 @@ const login = () => {
           }}
         >
           <Image
-            style={{ width: 150, height: 80, resizeMode: "contain" ,marginTop:10}}
+            style={{
+              width: 150,
+              height: 80,
+              resizeMode: "contain",
+              marginTop: 10,
+            }}
             source={{
               uri: "https://cdn-icons-png.flaticon.com/128/6655/6655045.png",
             }}
@@ -152,12 +157,37 @@ const login = () => {
               Forgot Password
             </Text>
           </View>
-          <View style={{marginTop:30}}/>
-          <TouchableOpacity style={{width:100,backgroundColor:"pink",padding:15,marginLeft:"auto",marginRight:"auto",borderRadius:10}}>
-            <Text style={{fontSize:17,fontWeight:"bold",textAlign:"center",color:"black"}} >LOGIN</Text>
+          <View style={{ marginTop: 30 }} />
+          <TouchableOpacity
+            style={{
+              width: 100,
+              backgroundColor: "pink",
+              padding: 15,
+              marginLeft: "auto",
+              marginRight: "auto",
+              borderRadius: 10,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 17,
+                fontWeight: "bold",
+                textAlign: "center",
+                color: "black",
+              }}
+            >
+              LOGIN
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{marginTop:12}} onPress={()=>{router.replace('/register')}}>
-            <Text style={{fontSize:16,textAlign:"center",color:"gray"}} >Don't have an account ? Sign In</Text>
+          <TouchableOpacity
+            style={{ marginTop: 12 }}
+            onPress={() => {
+              router.replace("/register");
+            }}
+          >
+            <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
+              Don't have an account ? Sign In
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
