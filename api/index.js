@@ -9,7 +9,10 @@ import Chat from "./models/message.js";
 
 const app = express();
 const port = 8000;
-app.use(cors());
+app.use(cors({
+  origin:"*",
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -33,11 +36,13 @@ app.listen(port, () => {
 
 app.post("/register", async (req, res) => {
   try {
+    console.log("hello");
     const { name, email, password } = req.body;
     //check if email already exists in db
-    const existingUser = User.findOne({ email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.status(400).json({ message: "user already exists" });
+      console.log("Email already registered");
+      return res.status(400).json({ message: "user already exists" });
     }
     //create a new user object
     const newUser = new User({
@@ -51,6 +56,7 @@ app.post("/register", async (req, res) => {
     await newUser.save();
     //send verification email notification to user
     sendVerificationEmail(newUser.email, newUser.verificationToken);
+    res.status(200).json({ message: "registration complete" });
   } catch (err) {
     console.log("registration error: " + err);
     res.status(500).json({ message: "registration failed" });
@@ -60,11 +66,12 @@ app.post("/register", async (req, res) => {
 //send verifiacation email function
 const sendVerificationEmail = async (email, verificationToken) => {
   const transport = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
     auth: {
-      user: "rahulkathayat1103@gmail.com",
+      user: "rahulkathy1103@gmail.com",
       pass: "qvrfgxshagztmsws",
     },
+    secure:false,
   });
 
   const mailOptions = {
@@ -80,3 +87,24 @@ const sendVerificationEmail = async (email, verificationToken) => {
     console.log(e);
   }
 };
+
+//verify the user
+
+app.get("/verify/:token", async (req, res) => {
+  try{
+    const token = req.params.token;
+    const user = await User.findOne({verificationToken: token});
+    if(!user){
+      return res.status(404).json({message:"invalid token"});
+    }
+    // mark the user as verified
+    user.verified = true;
+    user.verificationToken = undefined;
+    await user.save();
+    res.status(200).json({message:"successfully verified email"});
+  }
+  catch (e) {
+    console.log(e);
+    res.status(500).json({message: "email verification failed"});
+  }
+});

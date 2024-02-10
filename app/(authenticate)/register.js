@@ -8,18 +8,62 @@ import {
   TextInput,
   Pressable,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import axios from "axios";
 
 const register = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const handleRegister = () => {
+    const user = {
+      name: name,
+      email: email,
+      password: password,
+    };
+    axios
+      .post("http://192.168.1.103:8000/register", user)
+      .then((response) => {
+        console.log(response);
+        Alert.alert(
+          "Registered Successfully",
+          "You have been registered successfully",
+          [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel",
+            },
+            { text: "OK", onPress: () => console.log("OK Pressed") },
+          ]
+        );
+        setName("");
+        setEmail("");
+        setPassword("");
+      })
+      .catch((error) => {
+        console.log("Error registering the user ", error);
+        Alert.alert(
+          "Registration Failes",
+          "An error occured while registering",
+          [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel",
+            },
+            { text: "OK", onPress: () => console.log("OK Pressed") },
+          ]
+        );
+      });
+  };
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
@@ -115,7 +159,7 @@ const register = () => {
             />
           </View>
         </View>
-        <View style={{ }}>
+        <View style={{}}>
           <View
             style={{
               flexDirection: "row",
@@ -179,9 +223,10 @@ const register = () => {
               }}
             />
           </View>
-          
+
           <View style={{ marginTop: 30 }} />
           <TouchableOpacity
+            onPress={handleRegister}
             style={{
               width: 130,
               backgroundColor: "pink",
