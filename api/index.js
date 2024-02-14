@@ -108,3 +108,24 @@ app.get("/verify/:token", async (req, res) => {
     res.status(500).json({message: "email verification failed"});
   }
 });
+
+//api endpoint for login 
+app.post("/login",async (req,res) => {
+  try{
+    const {email,password} = req.body;
+
+    //check if user doesnt exist
+    const user=User.findOne({email});
+    if(!user){
+      return res.status(404).json({message:"Invalid Email or Password"});
+    }
+    if(user.password !== password){
+      return res.status(401).json({message:"invalid password"});
+    }
+    const token = jwt.sign({userId:user._id,secretKey});
+
+  }catch(e){
+    console.log("Error while Login");
+    console.log(e);
+  }
+});

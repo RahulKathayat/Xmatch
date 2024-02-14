@@ -29,20 +29,12 @@ const register = () => {
       password: password,
     };
     axios
-      .post("http://192.168.1.103:8000/register", user)
+      .post("http://192.168.29.31:8000/register", user)
       .then((response) => {
         console.log(response);
         Alert.alert(
           "Registered Successfully",
-          "You have been registered successfully",
-          [
-            {
-              text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
-              style: "cancel",
-            },
-            { text: "OK", onPress: () => console.log("OK Pressed") },
-          ]
+          "You have been registered successfully"
         );
         setName("");
         setEmail("");
@@ -51,16 +43,8 @@ const register = () => {
       .catch((error) => {
         console.log("Error registering the user ", error);
         Alert.alert(
-          "Registration Failes",
-          "An error occured while registering",
-          [
-            {
-              text: "Cancel",
-              onPress: () => console.log("Cancel Pressed"),
-              style: "cancel",
-            },
-            { text: "OK", onPress: () => console.log("OK Pressed") },
-          ]
+          "Registration Failed",
+          "An error occured while registering"
         );
       });
   };
