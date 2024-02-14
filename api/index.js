@@ -9,6 +9,11 @@ import Chat from "./models/message.js";
 
 const app = express();
 const port = 8000;
+const generateSecretKey = ()=>{
+  const secretKey = crypto.randomBytes(32).toString("hex");
+  return secretKey;
+};
+const secretKey = generateSecretKey();
 app.use(cors({
   origin:"*",
   credentials: true,
@@ -113,17 +118,16 @@ app.get("/verify/:token", async (req, res) => {
 app.post("/login",async (req,res) => {
   try{
     const {email,password} = req.body;
-
     //check if user doesnt exist
-    const user=User.findOne({email});
+    const user= await User.findOne({email});
     if(!user){
       return res.status(404).json({message:"Invalid Email or Password"});
     }
     if(user.password !== password){
       return res.status(401).json({message:"invalid password"});
     }
-    const token = jwt.sign({userId:user._id,secretKey});
-
+    const token = jwt.sign({userId:user._id},secretKey);
+    return res.status(200).json({token});
   }catch(e){
     console.log("Error while Login");
     console.log(e);

@@ -4,7 +4,7 @@ import { Redirect } from 'expo-router'
 
 const index = () => {
   return (
-    <Redirect href = "/(authenticate)/register"/>
+    <Redirect href = "/(authenticate)/select"/>
   )
 }
 

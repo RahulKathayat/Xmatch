@@ -13,10 +13,30 @@ import React, { useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const login = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const handleLogin = () => {
+    const user = {
+      email: email,
+      password: password,
+    };
+    axios
+      .post("http://192.168.29.31:8000/login", user)
+      .then((response) => {
+        console.log(response);
+        const token = response.data.token;
+        AsyncStorage.setItem("auth", token);
+        router.replace("/select");
+      })
+      .catch((e) => {
+        console.log(e);
+        console.log("Invalid email or password");
+      });
+  };
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
@@ -159,6 +179,7 @@ const login = () => {
           </View>
           <View style={{ marginTop: 30 }} />
           <TouchableOpacity
+            onPress={handleLogin}
             style={{
               width: 100,
               backgroundColor: "pink",
