@@ -9,7 +9,7 @@ import {
   Pressable,
   TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -19,6 +19,19 @@ const login = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  useEffect(()=>{
+    const checkLoginStatus = async ()=>{
+      try{
+        const token = await AsyncStorage.getItem("auth");
+        if(token){
+          router.replace("/(tabs)/profile")
+        }
+      }catch(e){
+        console.log("Error asyncstorage",e);
+      }
+    };
+    checkLoginStatus();
+  },[]);
   const handleLogin = () => {
     const user = {
       email: email,
