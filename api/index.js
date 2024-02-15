@@ -133,3 +133,26 @@ app.post("/login",async (req,res) => {
     console.log(e);
   }
 });
+
+//api endpoint to update gender 
+app.put("/users/:userId/gender",async (req,res) => {
+  try{
+    const {userId} = req.params;
+    const {gender} = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {gender:gender},
+      {new:true},
+    )
+
+    if(!user){
+      return res.status(404).json({message:"User not found"});
+    }
+    return res.status(200).json({message:"Gender updated successfully"});
+  }
+  catch(e){
+    res.status(500).json({message:"Error while updating gender"});
+    console.log(e , "Gender not updated");
+  }
+});
