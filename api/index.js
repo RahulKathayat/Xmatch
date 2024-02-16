@@ -9,15 +9,17 @@ import Chat from "./models/message.js";
 
 const app = express();
 const port = 8000;
-const generateSecretKey = ()=>{
+const generateSecretKey = () => {
   const secretKey = crypto.randomBytes(32).toString("hex");
   return secretKey;
 };
 const secretKey = generateSecretKey();
-app.use(cors({
-  origin:"*",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -76,7 +78,7 @@ const sendVerificationEmail = async (email, verificationToken) => {
       user: "rahulkathy1103@gmail.com",
       pass: "qvrfgxshagztmsws",
     },
-    secure:false,
+    secure: false,
   });
 
   const mailOptions = {
@@ -96,63 +98,151 @@ const sendVerificationEmail = async (email, verificationToken) => {
 //verify the user
 
 app.get("/verify/:token", async (req, res) => {
-  try{
+  try {
     const token = req.params.token;
-    const user = await User.findOne({verificationToken: token});
-    if(!user){
-      return res.status(404).json({message:"invalid token"});
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) {
+      return res.status(404).json({ message: "invalid token" });
     }
     // mark the user as verified
     user.verified = true;
     user.verificationToken = undefined;
     await user.save();
-    res.status(200).json({message:"successfully verified email"});
-  }
-  catch (e) {
+    res.status(200).json({ message: "successfully verified email" });
+  } catch (e) {
     console.log(e);
-    res.status(500).json({message: "email verification failed"});
+    res.status(500).json({ message: "email verification failed" });
   }
 });
 
-//api endpoint for login 
-app.post("/login",async (req,res) => {
-  try{
-    const {email,password} = req.body;
+//api endpoint for login
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
     //check if user doesnt exist
-    const user= await User.findOne({email});
-    if(!user){
-      return res.status(404).json({message:"Invalid Email or Password"});
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Invalid Email or Password" });
     }
-    if(user.password !== password){
-      return res.status(401).json({message:"invalid password"});
+    if (user.password !== password) {
+      return res.status(401).json({ message: "invalid password" });
     }
-    const token = jwt.sign({userId:user._id},secretKey);
-    return res.status(200).json({token});
-  }catch(e){
+    const token = jwt.sign({ userId: user._id }, secretKey);
+    return res.status(200).json({ token });
+  } catch (e) {
     console.log("Error while Login");
     console.log(e);
   }
 });
 
-//api endpoint to update gender 
-app.put("/users/:userId/gender",async (req,res) => {
-  try{
-    const {userId} = req.params;
-    const {gender} = req.body;
+//api endpoint to update gender
+app.put("/users/:userId/gender", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { gender } = req.body;
 
     const user = await User.findByIdAndUpdate(
       userId,
-      {gender:gender},
-      {new:true},
-    )
+      { gender: gender },
+      { new: true }
+    );
 
-    if(!user){
-      return res.status(404).json({message:"User not found"});
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    return res.status(200).json({message:"Gender updated successfully"});
+    return res.status(200).json({ message: "Gender updated successfully" });
+  } catch (e) {
+    res.status(500).json({ message: "Error while updating gender" });
+    console.log(e, "Gender not updated");
   }
-  catch(e){
-    res.status(500).json({message:"Error while updating gender"});
-    console.log(e , "Gender not updated");
+});
+
+//api endpoint to update the user description
+app.put("/users/:userId/description", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { description } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { description: description },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Description updated successfully" });
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ message: "Error while updating description" });
+  }
+});
+
+//api endpoint to fetch user's data
+app.get("/users/:userId",async(req,res) => {
+  try{
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    return res
+      .status(200)
+      .json({ user });
+  }catch (e) {
+    console.log(e,"error fetching user's data");
+    return res.status(500).json({ message: "Error while fetching user's data" });
+  }
+});
+
+//end point to add a turnon for a user in the backend
+app.put("/users/:userId/turn-ons/add", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { turnOn } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { turnOns: turnOn } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Turn on updated succesfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding the turn ons" });
+  }
+});
+
+//endpoint to remove a particular turn on for the user
+app.put("/users/:userId/turn-ons/remove", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { turnOn } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { turnOns: turnOn } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Turn on removed succesfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: "Error removing turn on" });
   }
 });

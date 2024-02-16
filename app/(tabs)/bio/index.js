@@ -8,16 +8,26 @@ import {
   Button,
   TouchableOpacity,
   FlatList,
+  Alert,
 } from "react-native";
-import React, { useState } from "react";
-import { ScrollView } from 'react-native-virtualized-view'
+import React, { useState, useEffect } from "react";
+import { ScrollView } from "react-native-virtualized-view";
 import { Entypo } from "@expo/vector-icons";
 import Carousel from "react-native-snap-carousel";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
+import "core-js/stable/atob";
+import axios from "axios";
 
 const index = () => {
   const [options, setOptions] = useState("AD");
   const [description, setDescription] = useState("");
   const [activeSlide, setActiveSlide] = React.useState(0);
+  const [userId, setUserId] = useState("");
+  const [selectedTurnOns, setSelectedTurnOns] = useState([]);
+  const [lookingOptions, setLookingOptions] = useState([]);
+  const [imageUrl, setImageUrl] = useState("");
+  const [images, setImages] = useState([]);
   //test data
   const profileImages = [
     {
@@ -85,6 +95,49 @@ const index = () => {
       description: "Let's Vibe and see where it goes",
     },
   ];
+  const updateUserDescription = async () => {
+    try {
+      const response = await axios.put(
+        `http://192.168.29.31:8000/users/${userId}/description`,
+        { description: description }
+      );
+      console.log(response.data);
+      if (response.status === 200) {
+        Alert.alert("Success", "User description updated successfully");
+      }
+    } catch (e) {
+      console.log("error updating the user description", e);
+    }
+  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = await AsyncStorage.getItem("auth");
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.userId;
+      setUserId(userId);
+    };
+
+    fetchUser();
+  }, []);
+  const fetchUserDescription = async () => {
+    try {
+      const response = await axios.get(`http://192.168.29.31:8000/users/${userId}`);
+      console.log(response);
+      const user = response.data;
+
+      setDescription(user?.user?.description);
+      setSelectedTurnOns(user.user?.turnOns);
+      setImages(user?.user.profileImages);
+      setLookingOptions(user?.user.lookingFor)
+    } catch (error) {
+      console.log("Error fetching user description", error);
+    }
+  };
+  useEffect(() => {
+    if (userId) {
+      fetchUserDescription();
+    }
+  }, [userId]);
   const renderImageCarousel = ({ item }) => (
     <View
       style={{ width: "100%", justifyContent: "center", alignItems: "center" }}
@@ -222,12 +275,14 @@ const index = () => {
             }}
           >
             <TextInput
+              value={description}
               multiline
               style={{ fontSize: 17 }}
               placeholder="Write your AD for people to like you "
               onChangeText={(text) => setDescription(text)}
             />
             <Pressable
+              onPress={updateUserDescription}
               style={{
                 marginTop: "auto",
                 flexDirection: "row",
@@ -300,8 +355,8 @@ const index = () => {
 
       <View style={{ marginHorizontal: 14, top: -30 }}>
         {options == "Turn-ons" && (
-        <View>
-          {turnons?.map((item, index) => (
+          <View>
+            {turnons?.map((item, index) => (
               <Pressable
                 style={{
                   backgroundColor: "#FFFDD0",
@@ -340,11 +395,11 @@ const index = () => {
                 </Text>
               </Pressable>
             ))}
-        </View>
+          </View>
         )}
       </View>
 
-      <View style={{ marginHorizontal: 14, top: -30  }}>
+      <View style={{ marginHorizontal: 14, top: -30 }}>
         {options == "Looking for" && (
           <>
             <View>
