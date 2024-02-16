@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema({
   },
   turnOns: [
     {
-      types: String,
+      type: String,
     },
   ],
   lookingFor: [

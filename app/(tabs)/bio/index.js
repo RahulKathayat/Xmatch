@@ -13,6 +13,7 @@ import {
 import React, { useState, useEffect } from "react";
 import { ScrollView } from "react-native-virtualized-view";
 import { Entypo } from "@expo/vector-icons";
+import { AntDesign } from '@expo/vector-icons';
 import Carousel from "react-native-snap-carousel";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
@@ -121,14 +122,16 @@ const index = () => {
   }, []);
   const fetchUserDescription = async () => {
     try {
-      const response = await axios.get(`http://192.168.29.31:8000/users/${userId}`);
+      const response = await axios.get(
+        `http://192.168.29.31:8000/users/${userId}`
+      );
       console.log(response);
       const user = response.data;
 
       setDescription(user?.user?.description);
       setSelectedTurnOns(user.user?.turnOns);
       setImages(user?.user.profileImages);
-      setLookingOptions(user?.user.lookingFor)
+      setLookingOptions(user?.user.lookingFor);
     } catch (error) {
       console.log("Error fetching user description", error);
     }
@@ -138,6 +141,49 @@ const index = () => {
       fetchUserDescription();
     }
   }, [userId]);
+  const addTurnOn = async (turnOn) => {
+    try {
+      const response = await axios.put(
+        `http://192.168.29.31:8000/users/${userId}/turn-ons/add`,
+        {
+          turnOn: turnOn,
+        }
+      );
+
+      console.log(response.data);
+
+      if (response.status == 200) {
+        setSelectedTurnOns([...selectedTurnOns, turnOn]);
+      }
+    } catch (error) {
+      console.log("Error adding turn on", error);
+    }
+  };
+  const removeTurnOn = async (turnOn) => {
+    try {
+      const response = await axios.put(
+        `http://192.168.29.31:8000/users/${userId}/turn-ons/remove`,
+        {
+          turnOn: turnOn,
+        }
+      );
+
+      console.log(response.data);
+
+      if (response.status == 200) {
+        setSelectedTurnOns(selectedTurnOns.filter((item) => item !== turnOn));
+      }
+    } catch (error) {
+      console.log("error removing turn on", error);
+    }
+  };
+  const handleToggleTurnOn = (turnOn) => {
+    if (selectedTurnOns.includes(turnOn)) {
+      removeTurnOn(turnOn);
+    } else {
+      addTurnOn(turnOn);
+    }
+  };
   const renderImageCarousel = ({ item }) => (
     <View
       style={{ width: "100%", justifyContent: "center", alignItems: "center" }}
@@ -358,6 +404,7 @@ const index = () => {
           <View>
             {turnons?.map((item, index) => (
               <Pressable
+                onPress={() => handleToggleTurnOn(item?.name)}
                 style={{
                   backgroundColor: "#FFFDD0",
                   padding: 10,
@@ -382,6 +429,9 @@ const index = () => {
                   >
                     {item?.name}
                   </Text>
+                  {selectedTurnOns.includes(item?.name) && (
+                    <AntDesign name="checkcircle" size={24} color="#17B169" />
+                  )}
                 </View>
                 <Text
                   style={{

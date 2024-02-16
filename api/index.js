@@ -203,13 +203,11 @@ app.put("/users/:userId/turn-ons/add", async (req, res) => {
   try {
     const { userId } = req.params;
     const { turnOn } = req.body;
-
     const user = await User.findByIdAndUpdate(
       userId,
       { $addToSet: { turnOns: turnOn } },
       { new: true }
-    );
-
+      );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
