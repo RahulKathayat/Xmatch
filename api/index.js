@@ -182,19 +182,19 @@ app.put("/users/:userId/description", async (req, res) => {
 });
 
 //api endpoint to fetch user's data
-app.get("/users/:userId",async(req,res) => {
-  try{
+app.get("/users/:userId", async (req, res) => {
+  try {
     const { userId } = req.params;
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    return res.status(200).json({ user });
+  } catch (e) {
+    console.log(e, "error fetching user's data");
     return res
-      .status(200)
-      .json({ user });
-  }catch (e) {
-    console.log(e,"error fetching user's data");
-    return res.status(500).json({ message: "Error while fetching user's data" });
+      .status(500)
+      .json({ message: "Error while fetching user's data" });
   }
 });
 
@@ -207,7 +207,7 @@ app.put("/users/:userId/turn-ons/add", async (req, res) => {
       userId,
       { $addToSet: { turnOns: turnOn } },
       { new: true }
-      );
+    );
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -242,5 +242,77 @@ app.put("/users/:userId/turn-ons/remove", async (req, res) => {
       .json({ message: "Turn on removed succesfully", user });
   } catch (error) {
     return res.status(500).json({ message: "Error removing turn on" });
+  }
+});
+
+//api endpoint to add a looking for for user
+app.put("/users/:userId/looking-for", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { lookingFor } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { lookingFor: lookingFor } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Looking for update succesfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating looking for" });
+  }
+});
+
+//endpoint to remove a particular turn on for the user
+app.put("/users/:userId/looking-for/remove", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const { lookingFor } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { lookingFor: lookingFor } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "looking for removed succesfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: "Error removing looking for" });
+  }
+});
+
+//api endpoint to add profile images of user in the database
+app.post("/users/:userId/profile-images", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { imageUrl } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.profileImages.push(imageUrl);
+
+    await user.save();
+
+    return res.status(200).json({ message: "Image has been added", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error addding the profile images" });
   }
 });

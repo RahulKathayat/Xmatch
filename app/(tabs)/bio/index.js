@@ -13,7 +13,7 @@ import {
 import React, { useState, useEffect } from "react";
 import { ScrollView } from "react-native-virtualized-view";
 import { Entypo } from "@expo/vector-icons";
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign } from "@expo/vector-icons";
 import Carousel from "react-native-snap-carousel";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
@@ -23,7 +23,7 @@ import axios from "axios";
 const index = () => {
   const [options, setOptions] = useState("AD");
   const [description, setDescription] = useState("");
-  const [activeSlide, setActiveSlide] = React.useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
   const [userId, setUserId] = useState("");
   const [selectedTurnOns, setSelectedTurnOns] = useState([]);
   const [lookingOptions, setLookingOptions] = useState([]);
@@ -33,11 +33,11 @@ const index = () => {
   const profileImages = [
     {
       image:
-        "https://images.pexels.com/photos/1042140/pexels-photo-1042140.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1215695/pexels-photo-1215695.jpeg?auto=compress&cs=tinysrgb&w=800",
     },
     {
       image:
-        "https://images.pexels.com/photos/1215695/pexels-photo-1215695.jpeg?auto=compress&cs=tinysrgb&w=800",
+        "https://images.pexels.com/photos/1042140/pexels-photo-1042140.jpeg?auto=compress&cs=tinysrgb&w=800",
     },
     {
       image:
@@ -141,6 +141,62 @@ const index = () => {
       fetchUserDescription();
     }
   }, [userId]);
+  const handleAddImage = async ()=>{
+    try{
+      const response = await axios.post(`http://192.168.29.31:8000/users/${userId}/profile-images`,{
+          imageUrl:imageUrl
+      });
+      console.log(response);
+      setImageUrl("");
+    } catch(error){
+        console.log("error aya h",error)
+    }
+  };
+  const addLookingFor = async (lookingFor) => {
+    try {
+      const response = await axios.put(
+        `http://192.168.29.31:8000/users/${userId}/looking-for`,
+        {
+          lookingFor: lookingFor,
+        }
+      );
+
+      console.log(response.data);
+
+      if (response.status == 200) {
+        setLookingOptions([...lookingOptions, lookingFor]);
+      }
+    } catch (error) {
+      console.log("Error addding looking for", error);
+    }
+  };
+  const removeLookingFor = async (lookingFor) => {
+    try {
+      const response = await axios.put(
+        `http://192.168.29.31:8000/users/${userId}/looking-for/remove`,
+        {
+          lookingFor: lookingFor,
+        }
+      );
+
+      console.log(response.data); // Log the response for confirmation
+
+      // Handle success or update your app state accordingly
+      if (response.status === 200) {
+        setLookingOptions(lookingOptions.filter((item) => item !== lookingFor));
+      }
+    } catch (error) {
+      console.error("Error removing looking for:", error);
+      // Handle error scenarios
+    }
+  };
+  const handleOption = (lookingFor) => {
+    if (lookingOptions.includes(lookingFor)) {
+      removeLookingFor(lookingFor);
+    } else {
+      addLookingFor(lookingFor);
+    }
+  };
   const addTurnOn = async (turnOn) => {
     try {
       const response = await axios.put(
@@ -184,7 +240,7 @@ const index = () => {
       addTurnOn(turnOn);
     }
   };
-  const renderImageCarousel = ({ item }) => (
+  const renderImageCarousel = ({ item,index }) => (
     <View
       style={{ width: "100%", justifyContent: "center", alignItems: "center" }}
     >
@@ -196,10 +252,10 @@ const index = () => {
           borderRadius: 10,
           // transform: [{ rotate: "-5deg" }],
         }}
-        source={{ uri: item?.image }}
+        source={{ uri: item }}
       />
       <Text style={{ color: "black", fontSize: 17, fontWeight: "500" }}>
-        {activeSlide + 1}/{profileImages.length}
+        {index + 1}/{images.length}
       </Text>
     </View>
   );
@@ -238,7 +294,7 @@ const index = () => {
                   resizeMode: "cover",
                 }}
                 source={{
-                  uri: "https://images.pexels.com/photos/1042140/pexels-photo-1042140.jpeg?auto=compress&cs=tinysrgb&w=800",
+                  uri: images[0],
                 }}
               />
               <Text style={{ fontSize: 16, fontWeight: "600", marginTop: 6 }}>
@@ -361,11 +417,11 @@ const index = () => {
         {options == "Photos" && (
           <View style={{ top: 30 }}>
             <Carousel
-              data={profileImages}
+              data={images}
               renderItem={renderImageCarousel}
               sliderWidth={350}
               itemWidth={300}
-              onSnapToItem={(index) => setActiveSlide(index)}
+              // onSnapToItem={(index) => setActiveSlide(index)}
             />
             <Text style={{ left: "40%" }}>Swipe left</Text>
             <View style={{ marginTop: 25, gap: 10 }}>
@@ -388,11 +444,13 @@ const index = () => {
                   color="gray"
                 />
                 <TextInput
+                  value={imageUrl}
+                  onChangeText={(val)=>setImageUrl(val)}
                   style={{ color: "gray", marginVertical: 10, width: 200 }}
                   placeholder="enter your image url"
                 />
               </View>
-              <Button style={{}} title="Add Image" />
+              <Button onPress={handleAddImage} style={{}} title="Add Image" />
               <View></View>
             </View>
           </View>
@@ -459,8 +517,12 @@ const index = () => {
                 data={data}
                 renderItem={({ item }) => (
                   <Pressable
+                    onPress={() => handleOption(item?.name)}
                     style={{
-                      backgroundColor: "white",
+                      backgroundColor: 
+                      lookingOptions.includes(item?.name)
+                        ? "#fd5c63"
+                        : "white",
                       padding: 16,
                       justifyContent: "center",
                       alignItems: "center",
@@ -476,14 +538,20 @@ const index = () => {
                         textAlign: "center",
                         fontWeight: "500",
                         fontSize: 13,
-                        color: "black",
+                        color: 
+                        lookingOptions.includes(item?.name)
+                        ? "white"
+                        : "black",
                       }}
                     >
                       {item?.name}
                     </Text>
                     <Text
                       style={{
-                        color: "gray",
+                        color: 
+                        lookingOptions.includes(item?.name)
+                        ? "white"
+                        : "gray",
                         textAlign: "center",
                         width: 140,
                         marginTop: 10,
