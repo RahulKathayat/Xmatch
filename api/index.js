@@ -316,3 +316,55 @@ app.post("/users/:userId/profile-images", async (req, res) => {
     res.status(500).json({ message: "Error addding the profile images" });
   }
 });
+
+//api endpoint to fetch all the matching profiles for a partifcular user
+app.get("/profiles", async (req, res) => {
+  try {
+    const { userId, gender, turnOns, lookingFor } = req.query;
+
+    let filter = { gender: gender === "male" ? "female" : "male" };
+    if (turnOns) {
+      filter.turnOns = { $in: turnOns };
+    }
+    if (lookingFor) {
+      filter.lookingFor = { $in: lookingFor };
+    }
+
+    const currentUser = await User.findById(userId)
+      .populate("matches", "_id")
+      .populate("crushes", "_id");
+
+    //extract the ids of the matches
+    const friendIds = currentUser.matches.map((friend) => {
+      friend._id;
+    });
+    const crushIds = currentUser.crushes.map((crush) => {
+      crush._id;
+    });
+    const profiles = await User.find(filter)
+      .where("_id")
+      .nin([userId, ...friendIds, ...crushIds]);
+    return res.status(200).json({ profiles });
+  } catch (error) {
+    console.log(error, "error fetching matching profiles for the user");
+    res.status(500).json({ message: "error fetching matching profiles for the user", error });
+  }
+});
+
+//api endpoint to send a friend/crush request to the other user
+app.post("/send-like", async (req, res) => {
+  try {
+    const { currentUserId, selectedUserId } = req.body;
+    // update the receipients receivedlikes array
+    await User.findByIdAndUpdate(selectedUserId, {
+      $push: { receivedLikes: currentUserId },
+    });
+    await User.findByIdAndUpdate(currentUserId, {
+      $push: { crushes: selectedUserId },
+    });
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error, "error sending the like to the user");
+    res.status(500).json({ message: "error sending the like request", error });
+  }
+});
