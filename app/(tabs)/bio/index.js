@@ -19,8 +19,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import "core-js/stable/atob";
 import axios from "axios";
+import { useRouter } from "expo-router";
 
 const index = () => {
+  const router = useRouter();
   const [options, setOptions] = useState("AD");
   const [description, setDescription] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
@@ -125,7 +127,6 @@ const index = () => {
       const response = await axios.get(
         `http://192.168.29.31:8000/users/${userId}`
       );
-      console.log(response);
       const user = response.data;
 
       setDescription(user?.user?.description);
