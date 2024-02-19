@@ -368,3 +368,78 @@ app.post("/send-like", async (req, res) => {
     res.status(500).json({ message: "error sending the like request", error });
   }
 });
+
+
+//ednpoint to get the details of the received Likes
+app.get("/received-likes/:userId/details", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Fetch details of users who liked the current user
+    const receivedLikesDetails = [];
+    for (const likedUserId of user.receivedLikes) {
+      const likedUser = await User.findById(likedUserId);
+      if (likedUser) {
+        receivedLikesDetails.push(likedUser);
+      }
+    }
+
+    res.status(200).json({ receivedLikesDetails });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching received likes details",
+      error: error.message,
+    });
+  }
+});
+
+//endpoint to create a match betweeen two people
+app.post("/create-match", async (req, res) => {
+  try {
+    const { currentUserId, selectedUserId } = req.body;
+
+    //update the selected user's crushes array and the matches array
+    await User.findByIdAndUpdate(selectedUserId, {
+      $push: { matches: currentUserId },
+      $pull: { crushes: currentUserId },
+    });
+
+    //update the current user's matches array recievedlikes array
+    await User.findByIdAndUpdate(currentUserId, {
+      $push: { matches: selectedUserId },
+      $pull: { recievedLikes: selectedUserId },
+    });
+
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating a match", error });
+  }
+});
+
+//endpoint to get all the matches of the particular user
+app.get("/users/:userId/matches", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const matchIds = user.matches;
+
+    const matches = await User.find({ _id: { $in: matchIds } });
+
+    res.status(200).json({ matches });
+  } catch (error) {
+    res.status(500).json({ message: "Error retrieving the matches", error });
+  }
+});
