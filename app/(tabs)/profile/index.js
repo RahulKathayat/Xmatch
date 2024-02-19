@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import React, { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { jwtDecode } from "jwt-decode";
 import "core-js/stable/atob";
 import axios from "axios";
+import Profile from "../../../components/Profile";
 
 const index = () => {
   const [userId, setUserId] = useState("");
@@ -59,8 +60,20 @@ const index = () => {
 
   console.log(profiles);
   return (
-    <View>
-      <Text>Profile Screen</Text>
+    <View style={{ flex: 1 }}>
+      <FlatList
+        data={profiles}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          <Profile
+            key={userId}
+            item={item}
+            userId={userId}
+            setProfiles={setProfiles}
+            isEven={index % 2 === 0}
+          />
+        )}
+      />
     </View>
   );
 };
