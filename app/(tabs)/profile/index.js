@@ -60,7 +60,7 @@ const index = () => {
 
   console.log(profiles);
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 ,marginTop:30}}>
       <FlatList
         data={profiles}
         keyExtractor={(item) => item.id}

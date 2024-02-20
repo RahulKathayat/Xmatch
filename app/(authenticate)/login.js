@@ -24,7 +24,7 @@ const login = () => {
       try{
         const token = await AsyncStorage.getItem("auth");
         if(token){
-          router.replace("/(tabs)/profile")
+          router.replace("/(tabs)/chat")
         }
       }catch(e){
         console.log("Error asyncstorage",e);

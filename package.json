@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.21.0",
+    "@react-navigation/native": "^6.1.10",
     "axios": "^1.6.7",
     "core-js": "^3.36.0",
     "deprecated-react-native-prop-types": "^5.0.0",

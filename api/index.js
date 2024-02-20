@@ -333,21 +333,21 @@ app.get("/profiles", async (req, res) => {
     const currentUser = await User.findById(userId)
       .populate("matches", "_id")
       .populate("crushes", "_id");
-
     //extract the ids of the matches
-    const friendIds = currentUser.matches.map((friend) => {
-      friend._id;
-    });
-    const crushIds = currentUser.crushes.map((crush) => {
-      crush._id;
-    });
+    const friendIds = currentUser.matches.map((friend) =>
+      friend._id.toString()
+    );
+    const crushIds = currentUser.crushes.map((crush) => crush._id.toString());
     const profiles = await User.find(filter)
       .where("_id")
       .nin([userId, ...friendIds, ...crushIds]);
     return res.status(200).json({ profiles });
   } catch (error) {
     console.log(error, "error fetching matching profiles for the user");
-    res.status(500).json({ message: "error fetching matching profiles for the user", error });
+    res.status(500).json({
+      message: "error fetching matching profiles for the user",
+      error,
+    });
   }
 });
 
@@ -368,7 +368,6 @@ app.post("/send-like", async (req, res) => {
     res.status(500).json({ message: "error sending the like request", error });
   }
 });
-
 
 //ednpoint to get the details of the received Likes
 app.get("/received-likes/:userId/details", async (req, res) => {
@@ -414,10 +413,10 @@ app.post("/create-match", async (req, res) => {
     //update the current user's matches array recievedlikes array
     await User.findByIdAndUpdate(currentUserId, {
       $push: { matches: selectedUserId },
-      $pull: { recievedLikes: selectedUserId },
+      $pull: { receivedLikes: selectedUserId },
     });
 
-    res.sendStatus(200);
+    res.status(200).json({ message: "successfully created match" });
   } catch (error) {
     res.status(500).json({ message: "Error creating a match", error });
   }

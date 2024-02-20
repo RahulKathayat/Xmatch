@@ -272,6 +272,10 @@ const index = () => {
         <View>
           <View>
             <Pressable
+            onPress={()=>{
+              AsyncStorage.clear();
+              router.replace("/(authenticate)/login")
+            }}
               style={{
                 padding: 10,
                 backgroundColor: "#DDA0DD",
