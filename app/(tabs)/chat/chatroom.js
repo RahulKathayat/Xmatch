@@ -23,15 +23,30 @@ const chatroom = () => {
   const params = useLocalSearchParams();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const socket = io("http://192.168.29.31:3000");
+  const [socket, setSocket] = useState(null);
+  useEffect(()=>{
+    const socket = io("http://192.168.29.31:3000");
+    setSocket(socket);
 
-  socket.on("connect" , ()=>{
-    console.log("connected to the Socket.IO server");
-  });
-  socket.on("receiveMessage", (newMessage)=>{
-    console.log("received message",newMessage);
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  });
+    socket.on("connect" , ()=>{
+      console.log("connected to the Socket.IO server");
+    });
+
+    socket.on("receiveMessage", (newMessage)=>{
+      console.log("received message",newMessage);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+
+    socket.emit('setUserID', params?.senderId);
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+
+  },[params?.senderId]);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "",
@@ -67,12 +82,14 @@ const chatroom = () => {
     });
   }, []);
   const sendMessage = async (senderId,receiverId) =>{
-    socket.emit('sendMessage',{senderId,receiverId,message});
-    setMessage("");
-    //call the fetch message function to see the ui being updated
-    setTimeout(() => {
-      fetchMessages();
-    },200);
+    if (socket && message.trim() !== '') {
+        socket.emit('sendMessage',{senderId,receiverId,message});
+        setMessage("");
+        //call the fetch message function to see the ui being updated
+        setTimeout(() => {
+          fetchMessages();
+        },200);
+    }
   }
   const fetchMessages = async () => {
     try{

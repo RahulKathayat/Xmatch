@@ -451,7 +451,12 @@ app.get("/users/:userId/matches", async (req, res) => {
 
 //socket endpoints
 io.on("connection", (socket) => {
-  console.log(`a user connected ${socket.id}`);
+  console.log(`a user connected with socket id : ${socket.id}`);
+
+  socket.on('setUserID', (userID) => {
+    connectedUsers[userID] = socket.id;
+    console.log(`UserId : ${userID} connected`);
+  });
 
   socket.on("sendMessage", async (data) => {
     try {
@@ -463,14 +468,28 @@ io.on("connection", (socket) => {
       await newMessage.save();
 
       // emit the message to the receiver
-      io.to(receiverId).emit("receiveMessage", newMessage);
+      const receipientSocketId = connectedUsers[receiverId];
+
+      if(receipientSocketId){
+        io.to(receipientSocketId).emit("receiveMessage", newMessage);
+      }
+      else{
+        console.log(`UserId : ${receiverId} is not connected`);
+      }
     } catch (error) {
       console.log("error sending message", error);
     }
   });
 
   socket.on("disconnect", () => {
-    console.log(`user  ${socket.id} disconnected`);
+      console.log(`user  ${socket.id} disconnected`);
+      const userID = Object.keys(connectedUsers).find(
+        key => connectedUsers[key] === socket.id
+      );
+      if (userID) {
+        delete connectedUsers[userID];
+        console.log(`UserId : ${userID} disconnected`);
+      }
   });
 });
 
@@ -482,7 +501,7 @@ server.listen(port2, () => {
 app.get("/messages", async (req, res) => {
   try {
     const { senderId, receiverId } = req.query;
-    console.log("senderId: " + senderId + "receiverId: " + receiverId);
+    console.log("senderId: " , senderId , "receiverId: " , receiverId);
 
     const messages = await Chat.find({
       $or: [
