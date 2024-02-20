@@ -1,9 +1,36 @@
 import { Pressable, StyleSheet, Text, View, Image } from "react-native";
 import React, { useEffect,useState } from "react";
 import { useRouter } from "expo-router";
+import axios from "axios";
 
 const UserChat = ({ item, userId }) => {
     const router = useRouter();
+    const [messages,setMessages] = useState([]);
+    const getLastMessage = () => {
+      const n = messages.length;
+      return messages[n-1];
+    }
+    const lastMessage = getLastMessage();
+
+    useEffect(() => {
+        fetchMessages();
+    }, []);
+    
+    const fetchMessages = async () => {
+      try {
+        const senderId = userId;
+        const receiverId = item?._id;
+        const response = await axios.get("http://192.168.29.31:8000/messages", {
+          params: { senderId, receiverId },
+        });
+  
+        // Assuming messages are stored in state to display in the UI
+        setMessages(response.data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        // Handle error scenarios
+      }
+    };
   return (
     <Pressable
       onPress={() =>
@@ -47,7 +74,7 @@ const UserChat = ({ item, userId }) => {
             marginTop: 6,
           }}
         >
-          Start the chat with {item?.name}
+          {lastMessage ? lastMessage?.message : `Start Chat with ${item?.name}`}
         </Text>
       </View>
     </Pressable>

@@ -6,14 +6,20 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 import User from "./models/user.js";
 import Chat from "./models/message.js";
+import { createServer } from "node:http";
+import { Server } from "socket.io";
 
 const app = express();
 const port = 8000;
+const port2 = 3000;
+const server = createServer(app);
+const io = new Server(server);
 const generateSecretKey = () => {
   const secretKey = crypto.randomBytes(32).toString("hex");
   return secretKey;
 };
 const secretKey = generateSecretKey();
+const connectedUsers = {};
 app.use(
   cors({
     origin: "*",
@@ -440,5 +446,53 @@ app.get("/users/:userId/matches", async (req, res) => {
     res.status(200).json({ matches });
   } catch (error) {
     res.status(500).json({ message: "Error retrieving the matches", error });
+  }
+});
+
+//socket endpoints
+io.on("connection", (socket) => {
+  console.log(`a user connected ${socket.id}`);
+
+  socket.on("sendMessage", async (data) => {
+    try {
+      console.log("data of message", data);
+      const { senderId, receiverId, message } = data;
+
+      //save the messages in the database
+      const newMessage = new Chat({ senderId, receiverId, message });
+      await newMessage.save();
+
+      // emit the message to the receiver
+      io.to(receiverId).emit("receiveMessage", newMessage);
+    } catch (error) {
+      console.log("error sending message", error);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`user  ${socket.id} disconnected`);
+  });
+});
+
+server.listen(port2, () => {
+  console.log(`socket server listening on ${port2}`);
+});
+
+//endpoint to fetch the chat messages of the user
+app.get("/messages", async (req, res) => {
+  try {
+    const { senderId, receiverId } = req.query;
+    console.log("senderId: " + senderId + "receiverId: " + receiverId);
+
+    const messages = await Chat.find({
+      $or: [
+        { senderId: senderId, receiverId: receiverId },
+        { senderId: receiverId, receiverId: senderId },
+      ],
+    }).populate("senderId", "_id name");
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log("error fetching the messages", error);
   }
 });
