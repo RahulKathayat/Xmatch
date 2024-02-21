@@ -135,7 +135,8 @@ app.post("/login", async (req, res) => {
       return res.status(401).json({ message: "invalid password" });
     }
     const token = jwt.sign({ userId: user._id }, secretKey);
-    return res.status(200).json({ token });
+    const gender = user?.gender;
+    return res.status(200).json({ token ,gender});
   } catch (e) {
     console.log("Error while Login");
     console.log(e);

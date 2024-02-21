@@ -42,8 +42,13 @@ const login = () => {
       .then((response) => {
         console.log(response);
         const token = response.data.token;
+        const gender = response.data.gender;
         AsyncStorage.setItem("auth", token);
-        router.replace("/select");
+        if(gender){
+          router.replace("/(tabs)/bio");
+        }else{
+          router.replace("/select");
+        }
       })
       .catch((e) => {
         console.log(e);

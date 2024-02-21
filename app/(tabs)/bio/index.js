@@ -280,10 +280,10 @@ const index = () => {
         <View>
           <View>
             <Pressable
-              onPress={() => {
-                AsyncStorage.clear();
-                router.replace("/(authenticate)/login");
-              }}
+              // onPress={() => {
+              //   AsyncStorage.clear();
+              //   router.replace("/(authenticate)/login");
+              // }}
               style={{
                 padding: 10,
                 backgroundColor: "#BCB4F6",
@@ -294,7 +294,7 @@ const index = () => {
                 alignItems: "center",
                 borderRadius: 30,
                 top: -60,
-                borderWidth:1,
+                borderWidth: 1,
               }}
             >
               <Image
@@ -384,49 +384,60 @@ const index = () => {
 
       <View style={{ marginHorizontal: 14, top: -30 }}>
         {options == "AD" && (
-          <View
-            style={{
-              borderColor: "#202020",
-              padding: 10,
-              borderWidth: 1,
-              borderRadius: 30,
-              height: 400,
-              alignItems: "center",
-              backgroundColor: "#F8E8F3",
-            }}
-          >
-            <TextInput
-              value={description}
-              multiline
-              style={{ fontSize: 17 }}
-              placeholder="Write your AD for people to like you "
-              onChangeText={(text) => setDescription(text)}
-            />
-            <Pressable
-              onPress={updateUserDescription}
+          <View style={{ alignItems: "center", justifyContent: "center" ,flex:1}}>
+            <View
               style={{
-                marginTop: "auto",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 15,
-                backgroundColor: "black",
-                justifyContent: "center",
+                borderColor: "#202020",
                 padding: 10,
-                borderRadius: 5,
-                width: 250,
+                borderWidth: 1,
+                borderRadius: 30,
+                height: 400,
+                alignItems: "center",
+                backgroundColor: "#F8E8F3",
               }}
             >
-              <Text
+              <TextInput
+                value={description}
+                multiline
+                style={{ fontSize: 17 }}
+                placeholder="Write your AD for people to like you "
+                onChangeText={(text) => setDescription(text)}
+              />
+              <Pressable
+                onPress={updateUserDescription}
                 style={{
-                  color: "white",
-                  textAlign: "center",
-                  fontSize: 15,
-                  fontWeight: "500",
+                  marginTop: "auto",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 15,
+                  backgroundColor: "black",
+                  justifyContent: "center",
+                  padding: 10,
+                  borderRadius: 5,
+                  width: 250,
                 }}
               >
-                Publish in Feed
-              </Text>
-              <Entypo name="mask" size={24} color="white" />
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontSize: 15,
+                    fontWeight: "500",
+                  }}
+                >
+                  Publish in Feed
+                </Text>
+                <Entypo name="mask" size={24} color="white" />
+              </Pressable>
+            </View>
+            <Pressable
+              onPress={() => {
+                AsyncStorage.clear();
+                router.replace("/(authenticate)/login");
+              }}
+              style={{ width: 100, height: 40, backgroundColor: "#EB455F" ,marginTop:15,borderRadius:20,alignItems:"center",justifyContent:"center"}}
+            >
+              <Text style={{fontWeight:"bold",fontSize:15,color:"white"}}>Log Out</Text>
             </Pressable>
           </View>
         )}
@@ -506,8 +517,8 @@ const index = () => {
                   marginVertical: 10,
                   width: 380,
                   borderRadius: 30,
-                  borderWidth:1,
-                  borderColor:"brown",
+                  borderWidth: 1,
+                  borderColor: "brown",
                 }}
                 key={index}
               >
@@ -598,7 +609,7 @@ const index = () => {
                         width: 140,
                         marginTop: 10,
                         fontSize: 14,
-                        fontWeight:"bold",
+                        fontWeight: "bold",
                       }}
                     >
                       {item?.description}
