@@ -8,6 +8,7 @@ import User from "./models/user.js";
 import Chat from "./models/message.js";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
+import 'dotenv/config'
 
 const app = express();
 const port = 8000;
@@ -31,7 +32,7 @@ app.use(express.urlencoded({ extended: false }));
 
 mongoose
   .connect(
-    "mongodb+srv://rkathayat1103:xF5NUUIbR7WiodHd@cluster0.u12xvoj.mongodb.net/xmatch"
+    process.env.EXPO_PUBLIC_MONGODB_URL
   )
   .then(() => {
     console.log("Conneted to MongoDB");
@@ -81,8 +82,8 @@ const sendVerificationEmail = async (email, verificationToken) => {
   const transport = nodemailer.createTransport({
     host: "smtp.gmail.com",
     auth: {
-      user: "rahulkathy1103@gmail.com",
-      pass: "qvrfgxshagztmsws",
+      user: process.env.EXPO_PUBLIC_MAIL,
+      pass: process.env.EXPO_PUBLIC_MAIL_PASS,
     },
     secure: false,
   });
