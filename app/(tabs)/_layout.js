@@ -5,7 +5,11 @@ import { Octicons } from "@expo/vector-icons";
 
 export default function Layout() {
   return (
-    <Tabs>
+    <Tabs screenOptions={()=>({
+      tabBarStyle:{
+        backgroundColor:"#F3F8FF",
+      }
+    })}>
       <Tabs.Screen
         name="profile"
         options={{
@@ -17,6 +21,7 @@ export default function Layout() {
             ) : (
               <Feather name="eye" size={24} color="gray" />
             ),
+            tabBarActiveTintColor:"black",
         }}
       />
       <Tabs.Screen
@@ -38,6 +43,7 @@ export default function Layout() {
                 color="gray"
               />
             ),
+            tabBarActiveTintColor:"black",
         }}
       />
       <Tabs.Screen
@@ -51,6 +57,7 @@ export default function Layout() {
             ) : (
               <Octicons name="person" size={24} color="gray" />
             ),
+            tabBarActiveTintColor:"black",
         }}
       />
     </Tabs>

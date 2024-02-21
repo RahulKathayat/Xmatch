@@ -13,7 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Entypo, Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import axios from "axios";
 import { ScrollView } from "react-native-virtualized-view";
 import {io} from "socket.io-client";
@@ -21,6 +21,7 @@ import {io} from "socket.io-client";
 const chatroom = () => {
   const navigation = useNavigation();
   const params = useLocalSearchParams();
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
@@ -52,7 +53,7 @@ const chatroom = () => {
       headerTitle: "",
       headerLeft: () => (
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="arrow-back" size={24} color="black" onPress={()=>router.back()} />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Image
               style={{

@@ -31,6 +31,7 @@ const index = () => {
   const [lookingOptions, setLookingOptions] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
   const [images, setImages] = useState([]);
+  const [name, setName] = useState("");
   //test data
   const profileImages = [
     {
@@ -133,6 +134,7 @@ const index = () => {
       setSelectedTurnOns(user.user?.turnOns);
       setImages(user?.user.profileImages);
       setLookingOptions(user?.user.lookingFor);
+      setName(user?.user?.name);
     } catch (error) {
       console.log("Error fetching user description", error);
     }
@@ -142,15 +144,21 @@ const index = () => {
       fetchUserDescription();
     }
   }, [userId]);
-  const handleAddImage = async ()=>{
-    try{
-      const response = await axios.post(`http://192.168.29.31:8000/users/${userId}/profile-images`,{
-          imageUrl:imageUrl
-      });
-      console.log(response);
-      setImageUrl("");
-    } catch(error){
-        console.log("error aya h",error)
+  const handleAddImage = async () => {
+    try {
+      if (imageUrl.length > 0) {
+        const response = await axios.post(
+          `http://192.168.29.31:8000/users/${userId}/profile-images`,
+          {
+            imageUrl: imageUrl,
+          }
+        );
+        console.log(response);
+        setImageUrl("");
+      }
+      console.log("imageurl is empty");
+    } catch (error) {
+      console.log("error aya h", error);
     }
   };
   const addLookingFor = async (lookingFor) => {
@@ -241,7 +249,7 @@ const index = () => {
       addTurnOn(turnOn);
     }
   };
-  const renderImageCarousel = ({ item,index }) => (
+  const renderImageCarousel = ({ item, index }) => (
     <View
       style={{ width: "100%", justifyContent: "center", alignItems: "center" }}
     >
@@ -250,7 +258,7 @@ const index = () => {
           width: "85%",
           resizeMode: "cover",
           height: 290,
-          borderRadius: 10,
+          borderRadius: 20,
           // transform: [{ rotate: "-5deg" }],
         }}
         source={{ uri: item }}
@@ -261,52 +269,57 @@ const index = () => {
     </View>
   );
   return (
-    <ScrollView>
+    <ScrollView style={{ backgroundColor: "#EDF1FF" }}>
       <View>
         <Image
           style={{ width: "100%", height: 200, resizeMode: "cover" }}
           source={{
-            uri: "https://static.vecteezy.com/system/resources/thumbnails/018/977/074/original/animated-backgrounds-with-liquid-motion-graphic-background-cool-moving-animation-for-your-background-free-video.jpg",
+            uri: "https://img.freepik.com/free-photo/forest-landscape_71767-127.jpg",
           }}
         />
         <View>
           <View>
             <Pressable
-            onPress={()=>{
-              AsyncStorage.clear();
-              router.replace("/(authenticate)/login")
-            }}
+              onPress={() => {
+                AsyncStorage.clear();
+                router.replace("/(authenticate)/login");
+              }}
               style={{
                 padding: 10,
-                backgroundColor: "#DDA0DD",
+                backgroundColor: "#BCB4F6",
                 width: 300,
                 marginLeft: "auto",
                 marginRight: "auto",
                 justifyContent: "center",
                 alignItems: "center",
-                borderRadius: 10,
-                // position: "absolute",
+                borderRadius: 30,
                 top: -60,
-                // left: "50%",
-                // transform: [{ translateY: -150 }],
+                borderWidth:1,
               }}
             >
               <Image
                 style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 30,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 50,
+                  borderWidth: 1,
+                  borderColor: "black",
                   resizeMode: "cover",
                 }}
                 source={{
                   uri: images[0],
                 }}
               />
-              <Text style={{ fontSize: 16, fontWeight: "600", marginTop: 6 }}>
-                Bangalore
-              </Text>
-              <Text style={{ marginTop: 4, fontSize: 15 }}>
-                22 years 110 days
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "600",
+                  marginTop: 6,
+                  color: "black",
+                  fontWeight: "bold",
+                }}
+              >
+                {name.toUpperCase()}
               </Text>
             </Pressable>
           </View>
@@ -326,7 +339,7 @@ const index = () => {
         <Pressable onPress={() => setOptions("AD")}>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: "500",
               color: options == "AD" ? "#007FFF" : "gray",
             }}
@@ -337,7 +350,7 @@ const index = () => {
         <Pressable onPress={() => setOptions("Photos")}>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: "500",
               color: options == "Photos" ? "#007FFF" : "gray",
             }}
@@ -348,7 +361,7 @@ const index = () => {
         <Pressable onPress={() => setOptions("Turn-ons")}>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: "500",
               color: options == "Turn-ons" ? "#007FFF" : "gray",
             }}
@@ -359,7 +372,7 @@ const index = () => {
         <Pressable onPress={() => setOptions("Looking for")}>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: "500",
               color: options == "Looking for" ? "#007FFF" : "gray",
             }}
@@ -376,9 +389,10 @@ const index = () => {
               borderColor: "#202020",
               padding: 10,
               borderWidth: 1,
-              borderRadius: 10,
-              height: 300,
+              borderRadius: 30,
+              height: 400,
               alignItems: "center",
+              backgroundColor: "#F8E8F3",
             }}
           >
             <TextInput
@@ -424,15 +438,17 @@ const index = () => {
             <Carousel
               data={images}
               renderItem={renderImageCarousel}
-              sliderWidth={350}
+              sliderWidth={400}
               itemWidth={300}
               // onSnapToItem={(index) => setActiveSlide(index)}
             />
-            <Text style={{ left: "40%" }}>Swipe left</Text>
-            <View style={{ marginTop: 25, gap: 10 }}>
-              <Text>Add a picture of yourself</Text>
+            <View style={{ marginTop: 25, gap: 10, alignItems: "center" }}>
+              <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                Add a picture of yourself
+              </Text>
               <View
                 style={{
+                  width: "100%",
                   flexDirection: "row",
                   alignItems: "center",
                   gap: 5,
@@ -450,28 +466,48 @@ const index = () => {
                 />
                 <TextInput
                   value={imageUrl}
-                  onChangeText={(val)=>setImageUrl(val)}
+                  onChangeText={(val) => setImageUrl(val)}
                   style={{ color: "gray", marginVertical: 10, width: 200 }}
                   placeholder="enter your image url"
                 />
               </View>
-              <Button onPress={handleAddImage} style={{}} title="Add Image" />
+              <TouchableOpacity
+                onPress={handleAddImage}
+                style={{
+                  width: 150,
+                  height: 50,
+                  backgroundColor: "#b9936c",
+                  borderRadius: 30,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{ fontWeight: "bold", color: "white", fontSize: 16 }}
+                >
+                  Add Image
+                </Text>
+              </TouchableOpacity>
               <View></View>
             </View>
           </View>
         )}
       </View>
 
-      <View style={{ marginHorizontal: 14, top: -30 }}>
+      <View style={{ marginHorizontal: 14, top: -30, alignItems: "center" }}>
         {options == "Turn-ons" && (
           <View>
             {turnons?.map((item, index) => (
               <Pressable
                 onPress={() => handleToggleTurnOn(item?.name)}
                 style={{
-                  backgroundColor: "#FFFDD0",
+                  backgroundColor: "#f9d5e5",
                   padding: 10,
                   marginVertical: 10,
+                  width: 380,
+                  borderRadius: 30,
+                  borderWidth:1,
+                  borderColor:"brown",
                 }}
                 key={index}
               >
@@ -485,12 +521,12 @@ const index = () => {
                   <Text
                     style={{
                       textAlign: "center",
-                      fontSize: 15,
+                      fontSize: 18,
                       fontWeight: "bold",
                       flex: 1,
                     }}
                   >
-                    {item?.name}
+                    {item?.name.toUpperCase()}
                   </Text>
                   {selectedTurnOns.includes(item?.name) && (
                     <AntDesign name="checkcircle" size={24} color="#17B169" />
@@ -499,8 +535,8 @@ const index = () => {
                 <Text
                   style={{
                     marginTop: 4,
-                    fontSize: 15,
-                    color: "gray",
+                    fontSize: 16,
+                    color: "black",
                     textAlign: "center",
                   }}
                 >
@@ -517,24 +553,26 @@ const index = () => {
           <>
             <View>
               <FlatList
-                columnWrapperStyle={{ justifyContent: "space-between" }}
+                columnWrapperStyle={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
                 numColumns={2}
                 data={data}
                 renderItem={({ item }) => (
                   <Pressable
                     onPress={() => handleOption(item?.name)}
                     style={{
-                      backgroundColor: 
-                      lookingOptions.includes(item?.name)
-                        ? "#fd5c63"
+                      backgroundColor: lookingOptions.includes(item?.name)
+                        ? "#C979AC"
                         : "white",
                       padding: 16,
                       justifyContent: "center",
                       alignItems: "center",
-                      width: 150,
+                      width: 180,
                       margin: 10,
                       borderRadius: 5,
-                      borderColor: "#fd5c63",
+                      borderColor: "black",
                       borderWidth: 0.7,
                     }}
                   >
@@ -542,25 +580,25 @@ const index = () => {
                       style={{
                         textAlign: "center",
                         fontWeight: "500",
-                        fontSize: 13,
-                        color: 
-                        lookingOptions.includes(item?.name)
-                        ? "white"
-                        : "black",
+                        fontSize: 15,
+                        color: lookingOptions.includes(item?.name)
+                          ? "white"
+                          : "black",
+                        fontWeight: "bold",
                       }}
                     >
-                      {item?.name}
+                      {item?.name.toUpperCase()}
                     </Text>
                     <Text
                       style={{
-                        color: 
-                        lookingOptions.includes(item?.name)
-                        ? "white"
-                        : "gray",
+                        color: lookingOptions.includes(item?.name)
+                          ? "white"
+                          : "gray",
                         textAlign: "center",
                         width: 140,
                         marginTop: 10,
-                        fontSize: 13,
+                        fontSize: 14,
+                        fontWeight:"bold",
                       }}
                     >
                       {item?.description}
