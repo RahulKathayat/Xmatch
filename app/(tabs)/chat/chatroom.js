@@ -7,53 +7,59 @@ import {
   TextInput,
   TouchableOpacity,
   Pressable,
+  ScrollView
 } from "react-native";
-import React, { useLayoutEffect, useState,useEffect } from "react";
+import React, { useLayoutEffect, useState, useEffect, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { Entypo, Feather } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import axios from "axios";
-import { ScrollView } from "react-native-virtualized-view";
-import {io} from "socket.io-client";
+// import { ScrollView } from "react-native-virtualized-view";
+import { io } from "socket.io-client";
 
 const chatroom = () => {
+  const scrollViewRef = useRef(null);
   const navigation = useNavigation();
   const params = useLocalSearchParams();
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
-  useEffect(()=>{
-    const socket = io(`${process.env.EXPO_PUBLIC_SOCKET_URL}`);   
+  useEffect(() => {
+    const socket = io(`${process.env.EXPO_PUBLIC_SOCKET_URL}`);
     setSocket(socket);
 
-    socket.on("connect" , ()=>{
+    socket.on("connect", () => {
       console.log("connected to the Socket.IO server");
     });
 
-    socket.on("receiveMessage", (newMessage)=>{
-      console.log("received message",newMessage);
+    socket.on("receiveMessage", (newMessage) => {
+      console.log("received message", newMessage);
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
-    socket.emit('setUserID', params?.senderId);
+    socket.emit("setUserID", params?.senderId);
 
     return () => {
       if (socket) {
         socket.disconnect();
       }
     };
-
-  },[params?.senderId]);
+  }, [params?.senderId]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: "",
       headerLeft: () => (
         <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-          <Ionicons name="arrow-back" size={24} color="black" onPress={()=>router.back()} />
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="black"
+            onPress={() => router.back()}
+          />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Image
               style={{
@@ -82,36 +88,48 @@ const chatroom = () => {
       ),
     });
   }, []);
-  const sendMessage = async (senderId,receiverId) =>{
-    if (socket && message.trim() !== '') {
-        socket.emit('sendMessage',{senderId,receiverId,message});
-        setMessage("");
-        //call the fetch message function to see the ui being updated
-        setTimeout(() => {
-          fetchMessages();
-        },200);
+  const sendMessage = async (senderId, receiverId) => {
+    if (socket && message.trim() !== "") {
+      socket.emit("sendMessage", { senderId, receiverId, message });
+      setMessage("");
+      //call the fetch message function to see the ui being updated
+      setTimeout(() => {
+        fetchMessages();
+      }, 200);
     }
-  }
+  };
   const fetchMessages = async () => {
-    try{
+    try {
       const senderId = params?.senderId;
       const receiverId = params?.receiverId;
 
-      const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/messages`,{
-        params:{
-          senderId,receiverId
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_API_URL}/messages`,
+        {
+          params: {
+            senderId,
+            receiverId,
+          },
         }
-      });
+      );
       setMessages(response.data);
-
-    }catch(e){
-      console.log("Failed to fetch messagess",e);
+    } catch (e) {
+      console.log("Failed to fetch messagess", e);
     }
   };
-  useEffect(() =>{
+
+  const scrollToBottom = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: false });
+    }
+  };
+  useEffect(() => {
     fetchMessages();
+  }, []);
+  useEffect(() => {
+    scrollToBottom();
   },[]);
-  
+
   const formatTime = (time) => {
     const options = { hour: "numeric", minute: "numeric" };
     return new Date(time).toLocaleString("en-US", options);
@@ -119,8 +137,8 @@ const chatroom = () => {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "white" }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      {messages?.map((item, index) => (
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} ref={scrollViewRef} onContentSizeChange={scrollToBottom}>
+        {messages?.map((item, index) => (
           <Pressable
             style={[
               item?.senderId === params?.senderId
@@ -142,13 +160,26 @@ const chatroom = () => {
                   },
             ]}
           >
-            <Text style={{ fontSize: 13, textAlign: "left", color: "white",fontWeight:"500" }}>
+            <Text
+              style={{
+                fontSize: 13,
+                textAlign: "left",
+                color: "white",
+                fontWeight: "500",
+              }}
+            >
               {item?.message}
             </Text>
-            <Text style={{fontSize:9,textAlign:"right",color:"#F0F0F0",marginTop:5}}>
+            <Text
+              style={{
+                fontSize: 9,
+                textAlign: "right",
+                color: "#F0F0F0",
+                marginTop: 5,
+              }}
+            >
               {formatTime(item?.timestamp)}
             </Text>
-
           </Pressable>
         ))}
       </ScrollView>
