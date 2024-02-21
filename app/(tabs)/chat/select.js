@@ -21,7 +21,7 @@ import {
   
     const handleMatch = async (selectedUserId) => {
       try {
-        const responese=await axios.post("http://192.168.29.31:8000/create-match", {
+        const responese=await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/create-match`, {
           currentUserId: userId,
           selectedUserId: selectedUserId,
         });

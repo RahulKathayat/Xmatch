@@ -102,7 +102,7 @@ const index = () => {
   const updateUserDescription = async () => {
     try {
       const response = await axios.put(
-        `http://192.168.29.31:8000/users/${userId}/description`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}/description`,
         { description: description }
       );
       console.log(response.data);
@@ -126,7 +126,7 @@ const index = () => {
   const fetchUserDescription = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.29.31:8000/users/${userId}`
+        `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}`
       );
       const user = response.data;
 
@@ -148,7 +148,7 @@ const index = () => {
     try {
       if (imageUrl.length > 0) {
         const response = await axios.post(
-          `http://192.168.29.31:8000/users/${userId}/profile-images`,
+          `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}/profile-images`,
           {
             imageUrl: imageUrl,
           }
@@ -156,7 +156,10 @@ const index = () => {
         console.log(response);
         setImageUrl("");
       }
-      console.log("imageurl is empty");
+      else{
+
+        console.log("imageurl is empty");
+      }
     } catch (error) {
       console.log("error aya h", error);
     }
@@ -164,7 +167,7 @@ const index = () => {
   const addLookingFor = async (lookingFor) => {
     try {
       const response = await axios.put(
-        `http://192.168.29.31:8000/users/${userId}/looking-for`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}/looking-for`,
         {
           lookingFor: lookingFor,
         }
@@ -182,7 +185,7 @@ const index = () => {
   const removeLookingFor = async (lookingFor) => {
     try {
       const response = await axios.put(
-        `http://192.168.29.31:8000/users/${userId}/looking-for/remove`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}/looking-for/remove`,
         {
           lookingFor: lookingFor,
         }
@@ -209,7 +212,7 @@ const index = () => {
   const addTurnOn = async (turnOn) => {
     try {
       const response = await axios.put(
-        `http://192.168.29.31:8000/users/${userId}/turn-ons/add`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}/turn-ons/add`,
         {
           turnOn: turnOn,
         }
@@ -227,7 +230,7 @@ const index = () => {
   const removeTurnOn = async (turnOn) => {
     try {
       const response = await axios.put(
-        `http://192.168.29.31:8000/users/${userId}/turn-ons/remove`,
+        `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}/turn-ons/remove`,
         {
           turnOn: turnOn,
         }

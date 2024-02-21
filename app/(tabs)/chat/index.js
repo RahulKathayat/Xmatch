@@ -29,7 +29,7 @@ const index = () => {
   const fetchRecievedLikesDetails = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.29.31:8000/received-likes/${userId}/details`
+        `${process.env.EXPO_PUBLIC_API_URL}/received-likes/${userId}/details`
       );
 
       console.log(response);
@@ -44,7 +44,7 @@ const index = () => {
   const fetchUserMatches = async () => {
     try {
       const response = await axios.get(
-        `http://192.168.29.31:8000/users/${userId}/matches`
+        `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}/matches`
       );
 
       const userMatches = response.data.matches;

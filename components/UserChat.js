@@ -20,7 +20,7 @@ const UserChat = ({ item, userId }) => {
       try {
         const senderId = userId;
         const receiverId = item?._id;
-        const response = await axios.get("http://192.168.29.31:8000/messages", {
+        const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/messages`, {
           params: { senderId, receiverId },
         });
   

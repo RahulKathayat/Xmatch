@@ -26,7 +26,7 @@ const chatroom = () => {
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
   useEffect(()=>{
-    const socket = io("http://192.168.29.31:3000");
+    const socket = io(`${process.env.EXPO_PUBLIC_SOCKET_URL}`);   
     setSocket(socket);
 
     socket.on("connect" , ()=>{
@@ -97,7 +97,7 @@ const chatroom = () => {
       const senderId = params?.senderId;
       const receiverId = params?.receiverId;
 
-      const response = await axios.get("http://192.168.29.31:8000/messages",{
+      const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/messages`,{
         params:{
           senderId,receiverId
         }

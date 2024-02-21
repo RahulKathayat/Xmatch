@@ -29,7 +29,7 @@ const register = () => {
       password: password,
     };
     axios
-      .post("http://192.168.29.31:8000/register", user)
+      .post(`${process.env.EXPO_PUBLIC_API_URL}/register`, user)
       .then((response) => {
         console.log(response);
         Alert.alert(

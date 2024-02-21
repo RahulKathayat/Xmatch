@@ -14,7 +14,7 @@ const Profile = ({ item, isEven, userId, setProfiles }) => {
   const handleLike = async (selectedUserId) => {
     try {
       setLiked(true);
-      await axios.post("http://192.168.29.31:8000/send-like", {
+      await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/send-like`, {
         currentUserId: userId,
         selectedUserId: selectedUserId,
       });
@@ -32,7 +32,7 @@ const Profile = ({ item, isEven, userId, setProfiles }) => {
   const handleLikeOther = async (selectedUserId) => {
     try {
       setSelected(true);
-      await axios.post("http://192.168.29.31:8000/send-like", {
+      await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/send-like`, {
         currentUserId: userId,
         selectedUserId: selectedUserId,
       });

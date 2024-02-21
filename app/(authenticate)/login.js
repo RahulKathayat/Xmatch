@@ -38,7 +38,7 @@ const login = () => {
       password: password,
     };
     axios
-      .post("http://192.168.29.31:8000/login", user)
+      .post(`${process.env.EXPO_PUBLIC_API_URL}/login`, user)
       .then((response) => {
         console.log(response);
         const token = response.data.token;

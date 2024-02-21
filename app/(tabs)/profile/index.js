@@ -24,7 +24,7 @@ const index = () => {
     const fetchUserDescription = async () => {
       try {
         const response = await axios.get(
-          `http://192.168.29.31:8000/users/${userId}`
+          `${process.env.EXPO_PUBLIC_API_URL}/users/${userId}`
         );
         const user = response.data;
         setUser(user?.user);
@@ -40,7 +40,7 @@ const index = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axios.get(`http://192.168.29.31:8000/profiles`, {
+        const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/profiles`, {
           params: {
             userId: userId,
             gender: user?.gender,
