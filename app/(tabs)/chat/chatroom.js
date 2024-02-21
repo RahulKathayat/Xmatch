@@ -7,7 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   Pressable,
-  ScrollView
+  ScrollView,
 } from "react-native";
 import React, { useLayoutEffect, useState, useEffect, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -28,7 +28,10 @@ const chatroom = () => {
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    const socket = io(`${process.env.EXPO_PUBLIC_SOCKET_URL}`);
+    const socket = io(`https://xmatch.onrender.com`, {
+      transports: ['websocket'], 
+      jsonp: false 
+    });
     setSocket(socket);
 
     socket.on("connect", () => {
@@ -90,6 +93,7 @@ const chatroom = () => {
   }, []);
   const sendMessage = async (senderId, receiverId) => {
     if (socket && message.trim() !== "") {
+      console.log("socket is", socket);
       socket.emit("sendMessage", { senderId, receiverId, message });
       setMessage("");
       //call the fetch message function to see the ui being updated
@@ -128,7 +132,7 @@ const chatroom = () => {
   }, []);
   useEffect(() => {
     scrollToBottom();
-  },[]);
+  }, []);
 
   const formatTime = (time) => {
     const options = { hour: "numeric", minute: "numeric" };
@@ -137,7 +141,11 @@ const chatroom = () => {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "white" }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} ref={scrollViewRef} onContentSizeChange={scrollToBottom}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        ref={scrollViewRef}
+        onContentSizeChange={scrollToBottom}
+      >
         {messages?.map((item, index) => (
           <Pressable
             style={[

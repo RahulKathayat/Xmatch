@@ -12,7 +12,7 @@ import 'dotenv/config'
 
 const app = express();
 const port = 8000;
-const port2 = 3000;
+const port2 = 443;
 const server = createServer(app);
 const io = new Server(server);
 const generateSecretKey = () => {
