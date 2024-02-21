@@ -517,3 +517,7 @@ app.get("/messages", async (req, res) => {
     console.log("error fetching the messages", error);
   }
 });
+
+app.get("/",(req,res)=>{
+  res.status(200).json({message: "Server is up and Running yay !!"});  
+});

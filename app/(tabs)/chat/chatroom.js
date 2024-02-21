@@ -28,7 +28,7 @@ const chatroom = () => {
   const [messages, setMessages] = useState([]);
   const [socket, setSocket] = useState(null);
   useEffect(() => {
-    const socket = io(`https://xmatch.onrender.com`, {
+    const socket = io(`${process.env.EXPO_PUBLIC_SOCKET_URL}`, {
       transports: ['websocket'], 
       jsonp: false 
     });
@@ -93,7 +93,6 @@ const chatroom = () => {
   }, []);
   const sendMessage = async (senderId, receiverId) => {
     if (socket && message.trim() !== "") {
-      console.log("socket is", socket);
       socket.emit("sendMessage", { senderId, receiverId, message });
       setMessage("");
       //call the fetch message function to see the ui being updated
