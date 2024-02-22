@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.rahulkathayat.xmatch"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -29,6 +30,14 @@
     "plugins": [
       "expo-router"
     ],
-    "scheme": "xmatch"
+    "scheme": "xmatch",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9d4e1071-b5f6-48b2-85e2-960a97e90f04"
+      }
+    }
   }
 }
